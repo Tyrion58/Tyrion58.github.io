@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>快速了解马尔可夫过程和马尔可夫链</title>
+    <link href="/2023/02/03/Markov/"/>
+    <url>/2023/02/03/Markov/</url>
+    
+    <content type="html"><![CDATA[<p>Markovchain是经典的随机过程模型之一，近期大火的diffusion模型就是基于一个Markovchain。这是近期学习过程中整理的简短的学习笔记。</p><div class="row">    <embed src="Markov过程.pdf" width="100%" height="550" type="application/pdf"></div><p>参考资料： 《随机过程（第三版）》（缪柏其）</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>学习笔记</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>数理基础</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>理清计算机中的数据表达方式（1）--整数</title>
     <link href="/2023/02/01/2s-complement/"/>
     <url>/2023/02/01/2s-complement/</url>
