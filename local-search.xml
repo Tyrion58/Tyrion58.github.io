@@ -4,6 +4,60 @@
   
   
   <entry>
+    <title>Diffusion（2）-开山作DULN的详细推导</title>
+    <link href="/2023/02/08/Diffusion%EF%BC%882%EF%BC%89-%E5%BC%80%E5%B1%B1%E4%BD%9CDULN%E7%9A%84%E8%AF%A6%E7%BB%86%E6%8E%A8%E5%AF%BC/"/>
+    <url>/2023/02/08/Diffusion%EF%BC%882%EF%BC%89-%E5%BC%80%E5%B1%B1%E4%BD%9CDULN%E7%9A%84%E8%AF%A6%E7%BB%86%E6%8E%A8%E5%AF%BC/</url>
+    
+    <content type="html"><![CDATA[<p>了解了Diffusion大概的研究现状后，我只是大概明白了Diffusion的流程和框架，对于怎样去具体的实现它还没有认识。所以我首先去读了Stanford的那篇首次将Diffusion应用到机器学习的文章：<strong>DeepUnsupervised Learning using NonequilibriumThermodynamics</strong>。并对里面的公式进行了详细推导和整理，如下（滑动可翻页）：</p><div class="row">    <embed src="笔记2.pdf" width="100%" height="550" type="application/pdf"></div><p>总的来说Diffuion就是一个学习高斯核，也就是学习一些列高斯分布的参数（均值和方差）的过程。我们的训练目标是<strong>找到模型的最大对数似然</strong>。而可以用数学方法证明这个对数似然有下界，切在最理想情况下对数似然就等于这个下界。于是我们的训练目标就变成了最大化这个下界（文中用<spanclass="math inline">\(K\)</span>表示）。利用数学方法和一些近似，成功的将下界化为了KL散度和熵的和的形式。</p><p>在真正进行训练的时候，由于采样这个操作无法进行反向传播，所以使用了一种变通的方法。还经过推到，实现了已知初始条件就可以算出任意时刻t的状态而不用一步一步用循环去计算。</p><p>不足之处在于作者使用的代码很老，难以复现。此外，这个版本的Diffusion效果很差（相比于今天）。所以没有对这个工作进行复现。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文阅读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Diffusion</tag>
+      
+      <tag>Deep Learning</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Diffusion（1）--背景信息了解</title>
+    <link href="/2023/02/08/Diffusion%EF%BC%881%EF%BC%89-%E8%83%8C%E6%99%AF%E4%BF%A1%E6%81%AF%E4%BA%86%E8%A7%A3/"/>
+    <url>/2023/02/08/Diffusion%EF%BC%881%EF%BC%89-%E8%83%8C%E6%99%AF%E4%BF%A1%E6%81%AF%E4%BA%86%E8%A7%A3/</url>
+    
+    <content type="html"><![CDATA[<p>为了尽快了解Diffusion模型，我第一时间找到了一篇较为权威且全面的diffusion综述：<strong>DiffusionModels: A Comprehensive Survey of Methods and Applications</strong></p><p>Diffusion models have emerged as a powerful new family of deepgenerative models with record-breaking performance in many applications,including image synthesis, video generation, and molecule design. Inthis survey, we provide an overview of the rapidly expanding body ofwork on diffusion models, categorizing the research into three keyareas: efficient sampling, improved likelihood estimation, and handlingdata with special structures. We also discuss the potential forcombining diffusion models with other generative models for enhancedresults. We further review the wide-ranging applications of diffusionmodels in fields spanning from computer vision, natural languageprocessing, temporal data modeling, to interdisciplinary applications inother scientific disciplines. This survey aims to provide acontextualized, in-depth look at the state of diffusion models,identifying the key areas of focus and pointing to potential areas forfurther exploration</p><p>我主要从这篇文章中大致了解了一些Diffusion的背景，对Diffusion有了一个大概的了解。比如说，目前的Diffusion模型可以分为3大类：- DDPMs - Score - Based Generative Models（SGMs） - StochasticDifferential Equaions ( Score SDEs ）</p><p>然而最早的Diffuion模型是来自于一个热力学情景，首个将其与深度学习结合的工作是：DeepUnsupervised Learning using NonequilibriumThermodynamics。这篇文章算是真正的开山之作，但是随后的DDPMs的提出才标志着Diffusion在图像生成领域地位的确立。</p><p>下面是手写笔记(滑动可翻页)： <div class="row">    <embed src="笔记1.pdf" width="100%" height="550" type="application/pdf"></div></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文阅读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Diffusion</tag>
+      
+      <tag>Deep Learning</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>快速了解马尔可夫过程和马尔可夫链</title>
     <link href="/2023/02/03/Markov/"/>
     <url>/2023/02/03/Markov/</url>
