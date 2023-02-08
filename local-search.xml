@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>计算机中的输入与输出</title>
+    <link href="/2023/02/08/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E8%BE%93%E5%85%A5%E4%B8%8E%E8%BE%93%E5%87%BA/"/>
+    <url>/2023/02/08/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E8%BE%93%E5%85%A5%E4%B8%8E%E8%BE%93%E5%87%BA/</url>
+    
+    <content type="html"><![CDATA[<h1 id="io">I/O</h1><p>计算机必然是需要与人进行交互的，最基础的交互就是input and output</p><h2 id="privilege-priority-memory-address-space">Privilege, Priority,Memory Address Space</h2><p>这是一些需要了解的计算机系统的名词</p><h3 id="privilege">Privilege</h3><p>我也不知道怎么翻译，所以直接称为privilege了。privilege指的是做一些事情的权利。在计算机中，我们必然是不希望所有的程序都有执行所有ISA中的指令的权利。比如HALT指令可以终止程序的运行，如果有恶意程序的使用HALT会导致计算机运行奔溃。因此需要对其做出区分：</p><ul><li>privileged ----&gt; <strong>supervisor mode</strong></li><li>unprivileged ----&gt; <strong>user mode</strong></li></ul><p>前者有超级权限，可以使用所有的指令。</p><h3 id="priority">Priority</h3><p>优先级。计算机遇到多个程序时会根据优先级的大小做出反应</p><h3 id="memory-address-space">Memory address space</h3><p>内存地址空间并不是全部可以让用户使用。内存实际上被划分为了多个区域，承担不同的功能。有的部分与系统运行有关，一般情况下用户无法使用。从x0000到xffff依次连续划分为如下：</p><ul><li>system space</li><li>supervisor stack</li><li>user space</li><li>user stack</li><li>I/O page</li></ul><p>其中前两个区域被一起称为 <strong>privileged memory</strong></p><h1 id="input-and-output">Input and Output</h1><p>所有的输入输出设备都是通过寄存器来处理输入输出的数据的。即使最简单的输入输出设备都至少有2个寄存器：</p><ul><li>一个用来存储设备与计算机之间交互的信息</li><li>一个用来表示设备的状态</li></ul><p>在谈输入输出时我们需要了解设备的如下特性：</p><ul><li>ISA是否需要额外的特殊的指令来处理I/O</li><li>I/O设备和计算机保持同样的速度吗？如果不是，什么来manage它们之间速度的不同</li><li>谁来控制计算机和设备之间的信息传输</li></ul><p>下面分别对应这3个问题的解答</p><h2 id="memory-mapped-io-vs-special-io-instructions">memory-mapped I/Ovs special I/O instructions</h2><p>后者是针对输入输出专门定制指令，现在几乎没人用了，现在大部分用的是memory-mapped。简单说，就是把输入输出设备的寄存器视为内存中的一个特定的地址，原先的所有指令都不用变。LC3用的就是这种内存映射方法。地址中的xFE00到xFFFF就是专门为输入输出设备的寄存器保留的。</p><h2 id="asynchronous-vs.-synchronous">asynchronous vs. synchronous</h2><p>同步还是异步？同步不太现实，因为处理器的频率是极高的，现实中的输入和输出要比CPU满的多。尽管我们可以通过调整实现同步（即，几百万个时钟周期对应一次输入），但是因为我们的输入并不是匀速的，不能保证输入频率始终与其匹配。所以实际上用的比较多的还是异步方法。这个的逻辑很简单，就是使用一个状态码flag。通过这个flag可以实现异步输入输出与CPU的同步。以输入为例，每次有新字符输入就setflag，每次有新字符被读取就clearflag。如此一来只需要检测flag的状态就可以判断是否发出对应指令去读取设备的寄存器。</p><h2 id="interrupt-driven-vs.-polling">interrupt-driven vs. polling</h2><p>就是谁来控制设备与计算机之间交互的问题。所谓的interrupt-driven就是处理器一直在干自己的事，直到设备发出信息：有新的字符输入，请读取。这就是由输入输出设备主导的交互。polling就是处理器不停地、一遍又一遍地查询状态码-the readybit，直到它被set。</p><h2 id="从键盘输入">从键盘输入</h2><h3 id="basic-input-registerskbdr-and-kbsr">basic input registers(KBDRand KBSR)</h3><p>键盘的两个寄存器分别为 keyboard data register(KBDR)和keyboard statusregister(KBSR)。它们都在内存中有特定的地址：</p><ul><li>KBDR: xFE02</li><li>KBSR: xFE00</li></ul><p>LC3内存的字长为16bit，但是这两个寄存器都用不到全部的16bit。对KBDR来说，bit[15:8]不用，总是为0；bit[7:0]为该字符的ASCII码值。对于KDSR来说，只有bit[15]保存有ready bit，其余位都没用。</p><h3 id="the-basic-input-service-routine">the basic input serviceroutine</h3><p>流程就是，如果由计算机处理器去主导交互，则处理器会一遍又一一遍地查询KBSR直到KBSR[15]被set。当在键盘上打出一个字时，KBSR[15]就被set，对应的字符的ASCII码会被加载进寄存器KBDR，然后处理器会将KBDR中的值load进计算机的一个寄存器中，再把KBSR[15]清空。代码如下所示：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">START   LDI R1, A   ;判断有无输入<br>        BRzp START  ;若无有效输入，继续询问<br>        LDI R0, B   ;有有效输入，则将ASCII码加载进R0<br>        BRnzp NEXT_TASK ;成功加载，跳转到下一任务<br>A   .FILL   xFE00   ;KBSR<br>B   .FILL   xFE02   ;KBDR<br></code></pre></td></tr></table></figure><h2 id="从显示器输出">从显示器输出</h2><p>与前面的从键盘输入是完全一样的逻辑。 display data register --&gt;DDR(作用相当于键盘的KBDR) display status register --&gt;DSR(作用相当于键盘的KBSR) 规则也是一样。把保存在R0中的ASCII码显示到显示器上的代码：</p><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">START   LDI     R1, A   <span class="hljs-comment">;判断显示器是否准备好（上一个字符是否处理完了）</span><br>        <span class="hljs-keyword">BRzp </span>   START   <span class="hljs-comment">;显示器没准备好，继续询问</span><br>        STI     R0, <span class="hljs-keyword">B </span>  <span class="hljs-comment">;显示器准备好了，将R0中的ASCII码存入显示器的寄存器</span><br>        <span class="hljs-keyword">BRnzp </span>  NEXT_TASK<br>A       .FILL   xFE04<br><span class="hljs-keyword">B </span>      .FILL   xFE06<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>学习笔记</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>计算机系统</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>SNN（1）</title>
     <link href="/2023/02/08/SNN%EF%BC%881%EF%BC%89/"/>
     <url>/2023/02/08/SNN%EF%BC%881%EF%BC%89/</url>

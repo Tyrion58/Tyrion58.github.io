@@ -16,22 +16,22 @@
   <meta name="author" content="Tunyu Zhang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="脉冲神经网络 这篇笔记主要调查了脉冲神经网络的原理和应用。 对皮质锥体神经元的研究表明，在生物神经系统中把脉冲看作二进制的信息编码是很重要的。 编码有两种方式： - 按照脉冲的频率编码 rate-encoding - 按照脉冲的时间编码 pulse-encoding 就信息的广度而言，使用相同数量的神经元，pulse-encoding的编码方式有着更宽的信息范围。事实上，rate-encoding">
+    <meta name="description" content="I&#x2F;O 计算机必然是需要与人进行交互的，最基础的交互就是input and output Privilege, Priority, Memory Address Space 这是一些需要了解的计算机系统的名词 Privilege 我也不知道怎么翻译，所以直接称为privilege了。privilege指的是做一些事情的权利。在计算机中，我们必然是不希望所有的程序都有执行所有ISA中的指令的权利。比">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SNN（1）">
-<meta property="og:url" content="http://example.com/2023/02/08/SNN%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:title" content="计算机中的输入与输出">
+<meta property="og:url" content="http://example.com/2023/02/08/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E8%BE%93%E5%85%A5%E4%B8%8E%E8%BE%93%E5%87%BA/index.html">
 <meta property="og:site_name" content="My Beautiful Dark Twisted Fantasy">
-<meta property="og:description" content="脉冲神经网络 这篇笔记主要调查了脉冲神经网络的原理和应用。 对皮质锥体神经元的研究表明，在生物神经系统中把脉冲看作二进制的信息编码是很重要的。 编码有两种方式： - 按照脉冲的频率编码 rate-encoding - 按照脉冲的时间编码 pulse-encoding 就信息的广度而言，使用相同数量的神经元，pulse-encoding的编码方式有着更宽的信息范围。事实上，rate-encoding">
+<meta property="og:description" content="I&#x2F;O 计算机必然是需要与人进行交互的，最基础的交互就是input and output Privilege, Priority, Memory Address Space 这是一些需要了解的计算机系统的名词 Privilege 我也不知道怎么翻译，所以直接称为privilege了。privilege指的是做一些事情的权利。在计算机中，我们必然是不希望所有的程序都有执行所有ISA中的指令的权利。比">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-02-08T09:23:34.000Z">
-<meta property="article:modified_time" content="2023-02-08T09:24:01.836Z">
+<meta property="article:published_time" content="2023-02-08T09:29:34.000Z">
+<meta property="article:modified_time" content="2023-02-08T09:31:40.268Z">
 <meta property="article:author" content="Tunyu Zhang">
-<meta property="article:tag" content="SNN">
+<meta property="article:tag" content="计算机系统">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>SNN（1） - My Beautiful Dark Twisted Fantasy</title>
+  <title>计算机中的输入与输出 - My Beautiful Dark Twisted Fantasy</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="SNN（1）"></span>
+            <span id="subtitle" data-typed-text="以LC3为例"></span>
           
         </div>
 
@@ -225,7 +225,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-02-08 17:23" pubdate>
+        <time datetime="2023-02-08 17:29" pubdate>
           2023年2月8日 下午
         </time>
       </span>
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          898 字
+          2.2k 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          8 分钟
+          19 分钟
         
       </span>
     
@@ -294,25 +294,83 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">SNN（1）</h1>
+            <h1 style="display: none">以LC3为例</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="脉冲神经网络">脉冲神经网络</h1>
-<p>这篇笔记主要调查了脉冲神经网络的原理和应用。
-对皮质锥体神经元的研究表明，在生物神经系统中把脉冲看作二进制的信息编码是很重要的。
-编码有两种方式： - 按照脉冲的频率编码 rate-encoding - 按照脉冲的时间编码
-pulse-encoding</p>
-<p>就信息的广度而言，使用相同数量的神经元，pulse-encoding的编码方式有着更宽的信息范围。事实上，rate-encoding可以看作是pulse-encoding的一种特例。
-第一代通用神经元模型，是完全忽略了信息处理的时间层面。神经元的内在状态（internal
-state）被定义为输入的多个权重和。这就导致，神经元的所有输入都是同步的。此外，不像真实的神经元那样，这个神经元模型认为输入的大小（幅度）会对状态产生影响，即更大的输入更可能让后突触神经元达到激活的阈值。激活状态用简单的0和1表示。</p>
-<p>第二代通用神经元模型像第一代那样仍然忽略rate-encoding，采用简单的状态定义。不同的是，采用了数学方式定义激活函数（常常是sigmoid和偏移量bias），而不是简单地用一个阈值去定义。使用激活函数，可以把神经元的输入转换成相应的输出。激活函数的使用将神经元的输出给实数化了（而不是像之前那样的0和1）。这个模型被广泛接受，并且大量运用在ANN中，反向传播算法的出现更让它变得受欢迎。由于
-BP
-算法受其对连续且可微的激活函数的要求的限制，因此随后的研究中有很大一部分集中在寻找更合适的连续且可微的激活函数上。但是，由于忽略了独立脉冲的时间信息，神经元的潜能仍然没有完全开发出来。</p>
-<p>第三代神经元模型，神经元之间可以通过离散的脉冲或脉冲序列进行交流。和真实的生物神经元一样，输入的大小不会携带信息，信息通过脉冲的编码来传输。</p>
-<h2 id="在生物神经元中的脉冲机制">在生物神经元中的脉冲机制</h2>
-<p>来自各种前置神经元的动作电位或者脉冲会到达突触后神经元，刺激突触后电位（PSPs）。PSP代表着突触后神经元的状态，受一些突触特性影响（突触中的传递时间、突触连接的强度等等）。一般来说会有很多突触前神经元连接着很多突触后神经元，PSP会整合所有这些影响，当达到一定阈值后，突触后神经元会被激活。</p>
+                <h1 id="io">I/O</h1>
+<p>计算机必然是需要与人进行交互的，最基础的交互就是input and output</p>
+<h2 id="privilege-priority-memory-address-space">Privilege, Priority,
+Memory Address Space</h2>
+<p>这是一些需要了解的计算机系统的名词</p>
+<h3 id="privilege">Privilege</h3>
+<p>我也不知道怎么翻译，所以直接称为privilege了。privilege指的是做一些事情的权利。在计算机中，我们必然是不希望所有的程序都有执行所有ISA中的指令的权利。比如HALT指令可以终止程序的运行，如果有恶意程序的使用HALT会导致计算机运行奔溃。因此需要对其做出区分：</p>
+<ul>
+<li>privileged ----&gt; <strong>supervisor mode</strong></li>
+<li>unprivileged ----&gt; <strong>user mode</strong></li>
+</ul>
+<p>前者有超级权限，可以使用所有的指令。</p>
+<h3 id="priority">Priority</h3>
+<p>优先级。计算机遇到多个程序时会根据优先级的大小做出反应</p>
+<h3 id="memory-address-space">Memory address space</h3>
+<p>内存地址空间并不是全部可以让用户使用。内存实际上被划分为了多个区域，承担不同的功能。有的部分与系统运行有关，一般情况下用户无法使用。从x0000到xffff依次连续划分为如下：</p>
+<ul>
+<li>system space</li>
+<li>supervisor stack</li>
+<li>user space</li>
+<li>user stack</li>
+<li>I/O page</li>
+</ul>
+<p>其中前两个区域被一起称为 <strong>privileged memory</strong></p>
+<h1 id="input-and-output">Input and Output</h1>
+<p>所有的输入输出设备都是通过寄存器来处理输入输出的数据的。即使最简单的输入输出设备都至少有2个寄存器：</p>
+<ul>
+<li>一个用来存储设备与计算机之间交互的信息</li>
+<li>一个用来表示设备的状态</li>
+</ul>
+<p>在谈输入输出时我们需要了解设备的如下特性：</p>
+<ul>
+<li>ISA是否需要额外的特殊的指令来处理I/O</li>
+<li>I/O设备和计算机保持同样的速度吗？如果不是，什么来manage它们之间速度的不同</li>
+<li>谁来控制计算机和设备之间的信息传输</li>
+</ul>
+<p>下面分别对应这3个问题的解答</p>
+<h2 id="memory-mapped-io-vs-special-io-instructions">memory-mapped I/O
+vs special I/O instructions</h2>
+<p>后者是针对输入输出专门定制指令，现在几乎没人用了，现在大部分用的是memory-mapped。简单说，就是把输入输出设备的寄存器视为内存中的一个特定的地址，原先的所有指令都不用变。LC3用的就是这种内存映射方法。地址中的xFE00到xFFFF就是专门为输入输出设备的寄存器保留的。</p>
+<h2 id="asynchronous-vs.-synchronous">asynchronous vs. synchronous</h2>
+<p>同步还是异步？
+同步不太现实，因为处理器的频率是极高的，现实中的输入和输出要比CPU满的多。尽管我们可以通过调整实现同步（即，几百万个时钟周期对应一次输入），但是因为我们的输入并不是匀速的，不能保证输入频率始终与其匹配。
+所以实际上用的比较多的还是异步方法。这个的逻辑很简单，就是使用一个状态码flag。通过这个flag可以实现异步输入输出与CPU的同步。以输入为例，每次有新字符输入就set
+flag，每次有新字符被读取就clear
+flag。如此一来只需要检测flag的状态就可以判断是否发出对应指令去读取设备的寄存器。</p>
+<h2 id="interrupt-driven-vs.-polling">interrupt-driven vs. polling</h2>
+<p>就是谁来控制设备与计算机之间交互的问题。
+所谓的interrupt-driven就是处理器一直在干自己的事，直到设备发出信息：有新的字符输入，请读取。这就是由输入输出设备主导的交互。
+polling就是处理器不停地、一遍又一遍地查询状态码-the ready
+bit，直到它被set。</p>
+<h2 id="从键盘输入">从键盘输入</h2>
+<h3 id="basic-input-registerskbdr-and-kbsr">basic input registers(KBDR
+and KBSR)</h3>
+<p>键盘的两个寄存器分别为 keyboard data register(KBDR)和keyboard status
+register(KBSR)。它们都在内存中有特定的地址：</p>
+<ul>
+<li>KBDR: xFE02</li>
+<li>KBSR: xFE00</li>
+</ul>
+<p>LC3内存的字长为16bit，但是这两个寄存器都用不到全部的16bit。对KBDR来说，bit[15:8]不用，总是为0；bit[7:0]为该字符的ASCII码值。
+对于KDSR来说，只有bit[15]保存有ready bit，其余位都没用。</p>
+<h3 id="the-basic-input-service-routine">the basic input service
+routine</h3>
+<p>流程就是，如果由计算机处理器去主导交互，则处理器会一遍又一一遍地查询KBSR直到KBSR[15]被set。当在键盘上打出一个字时，KBSR[15]就被set，对应的字符的ASCII码会被加载进寄存器KBDR，然后处理器会将KBDR中的值load进计算机的一个寄存器中，再把KBSR[15]清空。代码如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">START   LDI R1, A   ;判断有无输入<br>        BRzp START  ;若无有效输入，继续询问<br>        LDI R0, B   ;有有效输入，则将ASCII码加载进R0<br>        BRnzp NEXT_TASK ;成功加载，跳转到下一任务<br>A   .FILL   xFE00   ;KBSR<br>B   .FILL   xFE02   ;KBDR<br></code></pre></td></tr></table></figure>
+<h2 id="从显示器输出">从显示器输出</h2>
+<p>与前面的从键盘输入是完全一样的逻辑。 display data register --&gt;
+DDR(作用相当于键盘的KBDR) display status register --&gt;
+DSR(作用相当于键盘的KBSR) 规则也是一样。
+把保存在R0中的ASCII码显示到显示器上的代码：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">START   LDI     R1, A   <span class="hljs-comment">;判断显示器是否准备好（上一个字符是否处理完了）</span><br>        <span class="hljs-keyword">BRzp </span>   START   <span class="hljs-comment">;显示器没准备好，继续询问</span><br>        STI     R0, <span class="hljs-keyword">B </span>  <span class="hljs-comment">;显示器准备好了，将R0中的ASCII码存入显示器的寄存器</span><br>        <span class="hljs-keyword">BRnzp </span>  NEXT_TASK<br>A       .FILL   xFE04<br><span class="hljs-keyword">B </span>      .FILL   xFE06<br></code></pre></td></tr></table></figure>
 
                 
               </div>
@@ -321,11 +379,32 @@ BP
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/SNN/">#SNN</a>
+        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F/">#计算机系统</a>
       
     </div>
   
@@ -337,8 +416,8 @@ BP
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>SNN（1）</div>
-      <div>http://example.com/2023/02/08/SNN（1）/</div>
+      <div>计算机中的输入与输出</div>
+      <div>http://example.com/2023/02/08/计算机中的输入与输出/</div>
     </div>
     <div class="license-meta">
       
@@ -382,18 +461,12 @@ BP
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/02/08/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E8%BE%93%E5%85%A5%E4%B8%8E%E8%BE%93%E5%87%BA/" title="计算机中的输入与输出">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">计算机中的输入与输出</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/02/08/Event-camera%EF%BC%882%EF%BC%89-%E7%AE%97%E6%B3%95%E5%92%8C%E5%BA%94%E7%94%A8/" title="Event_camera（2）---算法和应用">
-                        <span class="hidden-mobile">Event_camera（2）---算法和应用</span>
+                      <a href="/2023/02/08/SNN%EF%BC%881%EF%BC%89/" title="SNN（1）">
+                        <span class="hidden-mobile">SNN（1）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
