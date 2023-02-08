@@ -16,23 +16,22 @@
   <meta name="author" content="Tunyu Zhang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="了解了Diffusion大概的研究现状后，我只是大概明白了Diffusion的流程和框架，对于怎样去具体的实现它还没有认识。所以我首先去读了Stanford的那篇首次将Diffusion应用到机器学习的文章：Deep Unsupervised Learning using Nonequilibrium Thermodynamics。并对里面的公式进行了详细推导和整理，如下（滑动可翻页）：">
+    <meta name="description" content="特征检测和跟踪 特征检测和跟踪是很多计算机视觉任务的基石。事件相机使得低延迟、高动态范围、低能耗地异步追踪成为可能。 挑战： 因为事件代表亮度的改变，而亮度的改变情况取决于移动的方向，所以挑战之一就是要克服不同的移动方式带来的场景面貌的不同。第二个挑战是处理噪声和相机移动所带来的事件混乱。 Review: 早期的基于事件的特征方法很简单并且专注在解释事件驱动型视觉系统的低延迟和低加工。都把移动的物">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Diffusion（2）-开山作DULN的详细推导">
-<meta property="og:url" content="http://example.com/2023/02/08/Diffusion%EF%BC%882%EF%BC%89-%E5%BC%80%E5%B1%B1%E4%BD%9CDULN%E7%9A%84%E8%AF%A6%E7%BB%86%E6%8E%A8%E5%AF%BC/index.html">
+<meta property="og:title" content="Event_camera（2）---算法和应用">
+<meta property="og:url" content="http://example.com/2023/02/08/Event-camera%EF%BC%882%EF%BC%89-%E7%AE%97%E6%B3%95%E5%92%8C%E5%BA%94%E7%94%A8/index.html">
 <meta property="og:site_name" content="My Beautiful Dark Twisted Fantasy">
-<meta property="og:description" content="了解了Diffusion大概的研究现状后，我只是大概明白了Diffusion的流程和框架，对于怎样去具体的实现它还没有认识。所以我首先去读了Stanford的那篇首次将Diffusion应用到机器学习的文章：Deep Unsupervised Learning using Nonequilibrium Thermodynamics。并对里面的公式进行了详细推导和整理，如下（滑动可翻页）：">
+<meta property="og:description" content="特征检测和跟踪 特征检测和跟踪是很多计算机视觉任务的基石。事件相机使得低延迟、高动态范围、低能耗地异步追踪成为可能。 挑战： 因为事件代表亮度的改变，而亮度的改变情况取决于移动的方向，所以挑战之一就是要克服不同的移动方式带来的场景面貌的不同。第二个挑战是处理噪声和相机移动所带来的事件混乱。 Review: 早期的基于事件的特征方法很简单并且专注在解释事件驱动型视觉系统的低延迟和低加工。都把移动的物">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-02-08T08:48:15.000Z">
-<meta property="article:modified_time" content="2023-02-08T09:00:01.343Z">
+<meta property="article:published_time" content="2023-02-08T09:20:17.000Z">
+<meta property="article:modified_time" content="2023-02-08T09:22:19.083Z">
 <meta property="article:author" content="Tunyu Zhang">
-<meta property="article:tag" content="Diffusion">
-<meta property="article:tag" content="Deep Learning">
+<meta property="article:tag" content="Event camera">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>Diffusion（2）-开山作DULN的详细推导 - My Beautiful Dark Twisted Fantasy</title>
+  <title>Event_camera（2）---算法和应用 - My Beautiful Dark Twisted Fantasy</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -215,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Diffusion（2）-开山作DULN的详细推导"></span>
+            <span id="subtitle" data-typed-text="Event_camera（2）---算法和应用"></span>
           
         </div>
 
@@ -226,7 +225,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-02-08 16:48" pubdate>
+        <time datetime="2023-02-08 17:20" pubdate>
           2023年2月8日 下午
         </time>
       </span>
@@ -238,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          511 字
+          1.1k 字
         
       </span>
     
@@ -249,7 +248,7 @@
         
         
         
-          5 分钟
+          10 分钟
         
       </span>
     
@@ -295,27 +294,38 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Diffusion（2）-开山作DULN的详细推导</h1>
+            <h1 style="display: none">Event_camera（2）---算法和应用</h1>
             
             
               <div class="markdown-body">
                 
-                <p>了解了Diffusion大概的研究现状后，我只是大概明白了Diffusion的流程和框架，对于怎样去具体的实现它还没有认识。所以我首先去读了Stanford的那篇首次将Diffusion应用到机器学习的文章：<strong>Deep
-Unsupervised Learning using Nonequilibrium
-Thermodynamics</strong>。并对里面的公式进行了详细推导和整理，如下（滑动可翻页）：</p>
-
-
-	<div class="row">
-    <embed src="笔记2.pdf" width="100%" height="550" type="application/pdf">
-	</div>
-
-
-
-<p>总的来说Diffuion就是一个学习高斯核，也就是学习一些列高斯分布的参数（均值和方差）的过程。我们的训练目标是
-<strong>找到模型的最大对数似然</strong>。而可以用数学方法证明这个对数似然有下界，切在最理想情况下对数似然就等于这个下界。于是我们的训练目标就变成了最大化这个下界（文中用<span
-class="math inline">\(K\)</span>表示）。利用数学方法和一些近似，成功的将下界化为了KL散度和熵的和的形式。</p>
-<p>在真正进行训练的时候，由于采样这个操作无法进行反向传播，所以使用了一种变通的方法。还经过推到，实现了已知初始条件就可以算出任意时刻t的状态而不用一步一步用循环去计算。</p>
-<p>不足之处在于作者使用的代码很老，难以复现。此外，这个版本的Diffusion效果很差（相比于今天）。所以没有对这个工作进行复现。</p>
+                <h1 id="特征检测和跟踪">特征检测和跟踪</h1>
+<p>特征检测和跟踪是很多计算机视觉任务的基石。事件相机使得低延迟、高动态范围、低能耗地异步追踪成为可能。</p>
+<p><strong>挑战：</strong>
+因为事件代表亮度的改变，而亮度的改变情况取决于移动的方向，所以挑战之一就是要克服不同的移动方式带来的场景面貌的不同。第二个挑战是处理噪声和相机移动所带来的事件混乱。</p>
+<p><strong>Review:</strong>
+早期的基于事件的特征方法很简单并且专注在解释事件驱动型视觉系统的低延迟和低加工。都把移动的物体作为聚类的点状源来追踪。只有生成事件的像素点才需要被处理。</p>
+<h1 id="optical-flow-estimation">optical flow estimation</h1>
+<p>光流估计是在不了解场景几何或运动的情况下计算图像平面上物体速度的问题。
+基于事件的光流估计是具有挑战性的，由于事件编码视觉信息的方式不是我们熟悉的方式。传统的相机，可以通过连续的两张图像分析出光流。利用亮度守恒假设和平滑假设，可以得到空间和时间的导数，从而有足够的方程能够解出每个像素点处的光流。</p>
+<p>相反，事件既不提供绝对亮度，也不提供空间连续信息。每个事件没有足够的信息去决定光流，所以需要把一定量的事件整合在一起来做出估计。</p>
+<h1 id="d-reconstruction">3D reconstruction</h1>
+<p>大多数工作致力于使用事件相机解决瞬时立体构建（instantaneous
+stereo）的问题。例如，使用2个或2个以上的同步的事件相机在很短的时间内进行3D重构。</p>
+<h1 id="姿态预测和slam">姿态预测和SLAM</h1>
+<p>使用event
+camera进行SLAM的一大难点在于，传统的算法都是基于图像的，这些算法根本无法直接在事件上使用。历史上，新的基于事件相机的SLAM算法致力于保留事件相机低延迟的特性。但是由于单个事件没有足够的信息来预测状态，所以目的就变成了对于每个事件能够异步地更新系统状态。</p>
+<h1 id="图像重构image-reconstruction">图像重构(Image
+Reconstruction)</h1>
+<p>事件代表亮度的改变，因此在理想状况下，将事件整合可以得到绝对亮度。events本质上来说是一种用来逐个像素点编码场景的视觉内容的非冗余方法。事件整合在更多情况下又称为图像重构(image
+reconstruction)。图像重构就是一个将编码的信息解压缩的过程。鉴于事件相机的很高的事件分辨率，事件重构可以得到很高帧率的图像，甚至是连续的图像。</p>
+<h1 id="运动分割motion-segmentation">运动分割(motion segmentation)</h1>
+<p>使用固定的事件相机进行移动物体的分割一般是比较简单的，因为时间相机只会捕捉亮度的改变，这很适合这一任务。然而每个事件携带的信息太少了，因此进行事件的分类是很困难的。</p>
+<h1 id="检测recognition">检测（recognition）</h1>
+<p>针对事件相机的目标检测算法比较复杂。旨在赋予检测系统更多的可表达性和对数据的鲁棒性。</p>
+<h1 id="神经形态控制neuromorphic-control">神经形态控制（neuromorphic
+control）</h1>
+<p>在活的生物中，大部分信息处理利用脉冲表达进行。生物学表明，基于事件的处理范例原则上可以进行控制。</p>
 
                 
               </div>
@@ -349,9 +359,7 @@ class="math inline">\(K\)</span>表示）。利用数学方法和一些近似，
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Diffusion/">#Diffusion</a>
-      
-        <a href="/tags/Deep-Learning/">#Deep Learning</a>
+        <a href="/tags/Event-camera/">#Event camera</a>
       
     </div>
   
@@ -363,8 +371,8 @@ class="math inline">\(K\)</span>表示）。利用数学方法和一些近似，
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Diffusion（2）-开山作DULN的详细推导</div>
-      <div>http://example.com/2023/02/08/Diffusion（2）-开山作DULN的详细推导/</div>
+      <div>Event_camera（2）---算法和应用</div>
+      <div>http://example.com/2023/02/08/Event-camera（2）-算法和应用/</div>
     </div>
     <div class="license-meta">
       
@@ -408,9 +416,9 @@ class="math inline">\(K\)</span>表示）。利用数学方法和一些近似，
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/02/08/Event-camera%EF%BC%881%EF%BC%89-%E8%83%8C%E6%99%AF/" title="Event_camera（1）---背景">
+                      <a href="/2023/02/08/SNN%EF%BC%881%EF%BC%89/" title="SNN（1）">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Event_camera（1）---背景</span>
+                        <span class="hidden-mobile">SNN（1）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -418,8 +426,8 @@ class="math inline">\(K\)</span>表示）。利用数学方法和一些近似，
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/02/08/Diffusion%EF%BC%881%EF%BC%89-%E8%83%8C%E6%99%AF%E4%BF%A1%E6%81%AF%E4%BA%86%E8%A7%A3/" title="Diffusion（1）--背景信息了解">
-                        <span class="hidden-mobile">Diffusion（1）--背景信息了解</span>
+                      <a href="/2023/02/08/Event-camera%EF%BC%881%EF%BC%89-%E8%83%8C%E6%99%AF/" title="Event_camera（1）---背景">
+                        <span class="hidden-mobile">Event_camera（1）---背景</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
